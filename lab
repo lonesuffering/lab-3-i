@@ -1,0 +1,289 @@
+
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <ctime>
+#include <cstdlib>
+#include <cmath>
+#include <stack>
+using namespace std;
+
+struct Node {
+    int data;
+    Node* left;
+    Node* right;
+    Node(int value) : data(value), left(nullptr), right(nullptr) {}
+};
+
+class BinaryTree {
+public:
+    Node* root;
+
+    BinaryTree() : root(nullptr) {}
+
+    void insert(int value) {
+        root = insertIteratively(value);
+    }
+
+    Node* search(int value) {
+        return searchIteratively(value);
+    }
+
+    void remove(int value) {
+        root = removeIteratively(value);
+    }
+
+    string preOrder() {
+        stringstream ss;
+        preOrderIteratively(root, ss);
+        return ss.str();
+    }
+
+    string inOrder() {
+        stringstream ss;
+        inOrderIteratively(root, ss);
+        return ss.str();
+    }
+
+    void clear() {
+        clearIteratively();
+        root = nullptr;
+    }
+
+    int height() {
+        return heightIteratively();
+    }
+
+    string toString() {
+        return preOrder();
+    }
+
+private:
+    Node* insertIteratively(int value) {
+        if (root == nullptr) {
+            return new Node(value);
+        }
+
+        Node* current = root;
+        while (current != nullptr) {
+            if (value < current->data) {
+                if (current->left == nullptr) {
+                    current->left = new Node(value);
+                    break;
+                } else {
+                    current = current->left;
+                }
+            } else if (value > current->data) {
+                if (current->right == nullptr) {
+                    current->right = new Node(value);
+                    break;
+                } else {
+                    current = current->right;
+                }
+            } else {
+                // Value already exists, do nothing
+                break;
+            }
+        }
+
+        return root;
+    }
+
+    Node* searchIteratively(int value) {
+        Node* current = root;
+        while (current != nullptr) {
+            if (value == current->data) {
+                return current;
+            } else if (value < current->data) {
+                current = current->left;
+            } else {
+                current = current->right;
+            }
+        }
+
+        return nullptr;
+    }
+
+    Node* removeIteratively(int value) {
+        // Implement remove operation iteratively
+        stack<Node*> nodes;
+        Node* current = root;
+        Node* parent = nullptr;
+
+while (current != nullptr) {
+            if (value < current->data) {
+                parent = current;
+                current = current->left;
+            } else if (value > current->data) {
+                parent = current;
+                current = current->right;
+            } else {
+                if (current->left == nullptr && current->right == nullptr) {
+                    if (parent) {
+                        if (parent->left == current) {
+                            parent->left = nullptr;
+                        } else {
+                            parent->right = nullptr;
+                        }
+                    }
+                    delete current;
+                    current = nullptr;
+                } else if (current->left == nullptr) {
+                    Node* temp = current;
+                    current = current->right;
+                    if (parent) {
+                        if (parent->left == temp) {
+                            parent->left = current;
+                        } else {
+                            parent->right = current;
+                        }
+                    }
+                    delete temp;
+                } else if (current->right == nullptr) {
+                    Node* temp = current;
+                    current = current->left;
+                    if (parent) {
+                        if (parent->left == temp) {
+                            parent->left = current;
+                        } else {
+                            parent->right = current;
+                        }
+                    }
+                    delete temp;
+                } else {
+                    Node* minRight = current->right;
+                    while (minRight->left) {
+                        parent = minRight;
+                        minRight = minRight->left;
+                    }
+                    current->data = minRight->data;
+                    if (parent->left == minRight) {
+                        parent->left = minRight->right;
+                    } else {
+                        parent->right = minRight->right;
+                    }
+                    delete minRight;
+                }
+            }
+        }
+
+        return root;
+    }
+
+    void preOrderIteratively(Node* node, stringstream& ss) {
+        if (node == nullptr) return;
+        stack<Node*> nodes;
+        nodes.push(node);
+        while (!nodes.empty()) {
+            Node* current = nodes.top();
+            nodes.pop();
+            ss << current->data << " ";
+            if (current->right != nullptr) {
+                nodes.push(current->right);
+            }
+            if (current->left != nullptr) {
+                nodes.push(current->left);
+            }
+        }
+    }
+
+    void inOrderIteratively(Node* node, stringstream& ss) {
+        stack<Node*> nodes;
+        Node* current = node;
+        while (current != nullptr  !nodes.empty()) {
+            while (current != nullptr) {
+                nodes.push(current);
+                current = current->left;
+            }
+            current = nodes.top();
+            nodes.pop();
+            ss << current->data << " ";
+            current = current->right;
+        }
+    }
+
+    void clearIteratively() {
+        stack<Node*> nodes;
+        Node* current = root;
+        while (current != nullptr  !nodes.empty()) {
+            if (current != nullptr) {
+                nodes.push(current);
+                current = current->left;
+            } else {
+                current = nodes.top();
+                nodes.pop();
+                Node* temp = current;
+                current = current->right;
+                delete temp;
+            }
+        }
+    }
+
+    int heightIteratively() {
+        if (root == nullptr) {
+            return 0;
+        }
+
+        int height = 0;
+        stack<pair<Node*, int>> nodes;
+        nodes.push(make_pair(root, 1);
+
+        while (!nodes.empty()) {
+            pair<Node*, int> current = nodes.top();
+            nodes.pop();
+            height = max(height, current.second);
+
+if (current.first->left) {
+                nodes.push(make_pair(current.first->left, current.second + 1));
+            }
+            if (current.first->right) {
+                nodes.push(make_pair(current.first->right, current.second + 1));
+            }
+        }
+
+        return height;
+    }
+};
+
+int main() {
+    const int MAX_ORDER = 4;
+
+    for (int o = 1; o <= MAX_ORDER; o++) {
+        const int n = pow(10, o);
+        BinaryTree tree;
+
+        clock_t t1 = clock();
+        for (int i = 0; i < n; i++) {
+            int random_value = rand();
+            tree.insert(random_value);
+        }
+        clock_t t2 = clock();
+
+        cout << "Tree representation after inserting " << n << " elements: " << tree.toString() << endl;
+
+        double insertTime = (double)(t2 - t1) / CLOCKS_PER_SEC;
+        cout << "Insertion time for " << n << " elements: " << insertTime << " seconds" << endl;
+
+        const int m = pow(10, 4);
+        int hits = 0;
+        t1 = clock();
+        for (int i = 0; i < m; i++) {
+            int random_value = rand();
+            Node* foundNode = tree.search(random_value);
+            if (foundNode) {
+                hits++;
+            }
+        }
+        t2 = clock();
+
+        double searchTime = (double)(t2 - t1) / CLOCKS_PER_SEC;
+        cout << "Search time for " << m << " random searches: " << searchTime << " seconds" << endl;
+
+        int treeHeight = tree.height();
+        cout << "Height of the tree: " << treeHeight << endl;
+
+        tree.clear();
+    }
+
+    return 0;
+}
